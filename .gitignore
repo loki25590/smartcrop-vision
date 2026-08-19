@@ -1,0 +1,16 @@
+.venv/
+__pycache__/
+*.py[cod]
+.ipynb_checkpoints/
+
+data/raw/
+data/processed/
+data/splits/
+
+models/
+logs/
+
+.env
+*.h5
+*.keras
+*.ckpt
