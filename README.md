@@ -238,7 +238,7 @@ I recorded a short demo showing the complete workflow:
 
 **Upload Leaf → AI Analysis → Disease Prediction → Treatment Information → AI Attention**
 
-*Add the demo video link here.*
+[▶️ Watch SmartCrop Vision Demo](https://drive.google.com/file/d/1Yh5pc0uztVgfZkwnix4dzEOgF73MtVP_/view?usp=sharing)
 
 ---
 
