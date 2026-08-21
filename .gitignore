@@ -1,16 +1,15 @@
 .venv/
 __pycache__/
-*.py[cod]
-.ipynb_checkpoints/
+*.pyc
 
-data/raw/
-data/processed/
-data/splits/
-
-models/
+data/
+outputs/
 logs/
 
-.env
-*.h5
-*.keras
-*.ckpt
+checkpoint.pth
+
+confusion_matrix.npy
+confusion_matrix.png
+test.jpg
+
+requirements_backup.txt

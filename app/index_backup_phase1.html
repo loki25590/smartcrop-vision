@@ -1,0 +1,1870 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>SmartCrop Vision</title>
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family:
+                Inter,
+                Arial,
+                Helvetica,
+                sans-serif;
+
+            background:
+                linear-gradient(
+                    180deg,
+                    #f5faf6 0%,
+                    #eef5ef 100%
+                );
+
+            color: #172018;
+            min-height: 100vh;
+        }
+
+        /* =====================================================
+           GLOBAL
+        ===================================================== */
+
+        .container {
+            width: 92%;
+            max-width: 1200px;
+            margin: auto;
+        }
+
+        button,
+        label {
+            font-family: inherit;
+        }
+
+        /* =====================================================
+           HEADER
+        ===================================================== */
+
+        header {
+            background: rgba(255,255,255,0.95);
+            border-bottom: 1px solid #dce7dd;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+        }
+
+        .header-inner {
+            min-height: 76px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-icon {
+            width: 45px;
+            height: 45px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #e6f4e8;
+            border-radius: 13px;
+            font-size: 25px;
+        }
+
+        .logo h1 {
+            font-size: 22px;
+            letter-spacing: -0.5px;
+        }
+
+        .logo p {
+            color: #718074;
+            font-size: 12px;
+            margin-top: 3px;
+        }
+
+        .status {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            color: #287338;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .status-dot {
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+            background: #35a64a;
+            box-shadow: 0 0 0 4px #e6f5e9;
+        }
+
+        /* =====================================================
+           HERO
+        ===================================================== */
+
+        .hero {
+            text-align: center;
+            padding: 65px 0 35px;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 30px;
+            background: #e6f5e9;
+            color: #267236;
+            font-size: 13px;
+            font-weight: 700;
+            margin-bottom: 18px;
+        }
+
+        .hero h2 {
+            font-size: clamp(32px, 5vw, 48px);
+            line-height: 1.1;
+            letter-spacing: -1.5px;
+            margin-bottom: 18px;
+        }
+
+        .hero h2 span {
+            color: #28783a;
+        }
+
+        .hero p {
+            max-width: 700px;
+            margin: auto;
+            color: #68746a;
+            line-height: 1.7;
+            font-size: 16px;
+        }
+
+        /* =====================================================
+           UPLOAD
+        ===================================================== */
+
+        .upload-section {
+            background: white;
+            border: 2px dashed #b9cbbb;
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            box-shadow: 0 10px 35px rgba(32,70,40,0.06);
+            transition: 0.2s;
+        }
+
+        .upload-section.dragover {
+            border-color: #2d813e;
+            background: #f4fbf5;
+        }
+
+        .upload-icon {
+            width: 65px;
+            height: 65px;
+            margin: 0 auto 17px;
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #edf7ef;
+            font-size: 30px;
+        }
+
+        .upload-section h3 {
+            font-size: 22px;
+            margin-bottom: 8px;
+        }
+
+        .upload-section p {
+            color: #747f75;
+            margin-bottom: 22px;
+        }
+
+        #fileInput {
+            display: none;
+        }
+
+        .upload-btn {
+            display: inline-block;
+            padding: 13px 25px;
+            background: #28733a;
+            color: white;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 700;
+            transition: 0.2s;
+        }
+
+        .upload-btn:hover {
+            background: #1e5c2d;
+            transform: translateY(-1px);
+        }
+
+        #fileName {
+            margin-top: 15px;
+            color: #59645b;
+            font-size: 14px;
+        }
+
+        .analyze-btn {
+            display: none;
+            margin: 20px auto 0;
+            border: none;
+            padding: 14px 30px;
+            background: #172018;
+            color: white;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: 700;
+            transition: 0.2s;
+        }
+
+        .analyze-btn:hover {
+            background: #303b31;
+            transform: translateY(-1px);
+        }
+
+        .analyze-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* =====================================================
+           LOADING
+        ===================================================== */
+
+        #loading {
+            display: none;
+            text-align: center;
+            padding: 30px;
+            color: #28733a;
+            font-weight: 700;
+        }
+
+        .spinner {
+            width: 34px;
+            height: 34px;
+            border: 4px solid #dce9df;
+            border-top: 4px solid #28733a;
+            border-radius: 50%;
+            animation: spin 0.9s linear infinite;
+            margin: 0 auto 12px;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* =====================================================
+           ERROR
+        ===================================================== */
+
+        #error {
+            display: none;
+            padding: 18px;
+            margin-top: 20px;
+            background: #fff1f1;
+            border: 1px solid #efcccc;
+            color: #a32929;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        /* =====================================================
+           RESULTS
+        ===================================================== */
+
+        #results {
+            display: none;
+            margin-top: 55px;
+            margin-bottom: 70px;
+        }
+
+        .section-title {
+            text-align: center;
+            margin-bottom: 28px;
+        }
+
+        .section-title h2 {
+            font-size: 30px;
+            margin-bottom: 8px;
+        }
+
+        .section-title p {
+            color: #718074;
+        }
+
+        /* =====================================================
+           IMAGE CARDS
+        ===================================================== */
+
+        .vision-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+            margin-bottom: 28px;
+        }
+
+        .vision-card {
+            background: white;
+            border: 1px solid #dce6dd;
+            border-radius: 18px;
+            overflow: hidden;
+            box-shadow: 0 8px 25px rgba(32,70,40,0.05);
+        }
+
+        .vision-card-header {
+            padding: 19px 21px;
+            border-bottom: 1px solid #e5ebe6;
+        }
+
+        .vision-card-header h3 {
+            font-size: 17px;
+        }
+
+        .vision-card-header p {
+            color: #758076;
+            font-size: 13px;
+            margin-top: 5px;
+        }
+
+        .image-container {
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            background: #edf2ee;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .image-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            display: block;
+        }
+
+        /* =====================================================
+           PREDICTION
+        ===================================================== */
+
+        .prediction-card {
+            background: white;
+            border: 1px solid #dce6dd;
+            border-radius: 18px;
+            padding: 28px;
+            margin-bottom: 25px;
+            box-shadow: 0 8px 25px rgba(32,70,40,0.05);
+        }
+
+        .prediction-card h3 {
+            font-size: 19px;
+            margin-bottom: 18px;
+        }
+
+        .main-prediction {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+            padding: 24px;
+            background: linear-gradient(
+                135deg,
+                #edf8ef,
+                #f6fbf7
+            );
+            border-radius: 14px;
+            border: 1px solid #dcecdf;
+        }
+
+        .plant-label {
+            color: #718074;
+            font-size: 13px;
+            margin-bottom: 6px;
+        }
+
+        .disease-name {
+            font-size: 25px;
+            font-weight: 800;
+            color: #205d2b;
+        }
+
+        .confidence {
+            font-size: 30px;
+            font-weight: 800;
+            color: #28733a;
+            text-align: right;
+        }
+
+        .confidence-label {
+            font-size: 12px;
+            color: #69736a;
+            text-align: right;
+            margin-top: 3px;
+        }
+
+        /* =====================================================
+           DISEASE INFORMATION
+        ===================================================== */
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 18px;
+        }
+
+        .info-box {
+            padding: 22px;
+            border-radius: 14px;
+            background: #f8faf8;
+            border: 1px solid #e1e8e2;
+        }
+
+        .info-icon {
+            font-size: 25px;
+            margin-bottom: 10px;
+        }
+
+        .info-box h4 {
+            margin-bottom: 8px;
+            font-size: 16px;
+        }
+
+        .info-box p {
+            color: #657066;
+            line-height: 1.65;
+            font-size: 14px;
+        }
+
+        /* =====================================================
+           TOP 3
+        ===================================================== */
+
+        .top-three {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .prediction-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+            padding: 16px;
+            border: 1px solid #e1e7e1;
+            border-radius: 12px;
+        }
+
+        .prediction-left {
+            display: flex;
+            align-items: center;
+            gap: 13px;
+        }
+
+        .rank {
+            width: 34px;
+            height: 34px;
+            flex-shrink: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #edf4ee;
+            border-radius: 50%;
+            font-weight: 800;
+            color: #315b39;
+        }
+
+        .prediction-disease {
+            font-weight: 650;
+        }
+
+        .prediction-confidence {
+            font-weight: 800;
+            color: #28733a;
+            white-space: nowrap;
+        }
+
+        /* =====================================================
+           ACTIONS
+        ===================================================== */
+
+        .actions {
+            text-align: center;
+            margin-top: 35px;
+        }
+
+        .reset-btn {
+            border: 1px solid #cbd8cd;
+            background: white;
+            color: #245b2e;
+            padding: 12px 24px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 700;
+            transition: 0.2s;
+        }
+
+        .reset-btn:hover {
+            background: #edf7ef;
+        }
+
+        /* =====================================================
+           FOOTER
+        ===================================================== */
+
+        footer {
+            text-align: center;
+            padding: 35px;
+            color: #7b847b;
+            font-size: 13px;
+            border-top: 1px solid #dce5dd;
+            background: white;
+        }
+
+        /* =====================================================
+           MOBILE
+        ===================================================== */
+
+        @media (max-width: 800px) {
+
+            .header-inner {
+                min-height: 68px;
+            }
+
+            .status {
+                display: none;
+            }
+
+            .hero {
+                padding-top: 45px;
+            }
+
+            .vision-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .main-prediction {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .confidence {
+                text-align: left;
+            }
+
+            .confidence-label {
+                text-align: left;
+            }
+
+            .upload-section {
+                padding: 28px 18px;
+            }
+
+            .prediction-card {
+                padding: 20px;
+            }
+
+            .prediction-row {
+                align-items: flex-start;
+            }
+
+        }
+
+    </style>
+</head>
+
+
+<body>
+
+
+<!-- =========================================================
+     HEADER
+========================================================= -->
+
+<header>
+
+    <div class="container header-inner">
+
+        <div class="logo">
+
+            <div class="logo-icon">
+                🌱
+            </div>
+
+            <div>
+
+                <h1>
+                    SmartCrop Vision
+                </h1>
+
+                <p>
+                    AI Plant Disease Detection
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div class="status">
+
+            <span class="status-dot"></span>
+
+            AI System Online
+
+        </div>
+
+    </div>
+
+</header>
+
+
+<!-- =========================================================
+     MAIN
+========================================================= -->
+
+<main class="container">
+
+
+    <!-- HERO -->
+
+    <section class="hero">
+
+        <div class="badge">
+            ⚡ Vision Transformer Powered
+        </div>
+
+        <h2>
+            Detect Plant Diseases
+            <span>with AI</span>
+        </h2>
+
+        <p>
+            Upload a clear plant leaf image and SmartCrop Vision
+            will analyze it using a trained Vision Transformer
+            model and provide disease information.
+        </p>
+
+    </section>
+
+
+    <!-- =====================================================
+         UPLOAD
+    ====================================================== -->
+
+    <section
+        class="upload-section"
+        id="uploadSection"
+    >
+
+        <div class="upload-icon">
+            🌿
+        </div>
+
+        <h3>
+            Upload a leaf image
+        </h3>
+
+        <p>
+            Select a clear image of a plant leaf for analysis.
+        </p>
+
+
+        <label
+            for="fileInput"
+            class="upload-btn"
+        >
+            📁 Select Leaf Image
+        </label>
+
+
+        <input
+            type="file"
+            id="fileInput"
+            accept="image/*"
+        >
+
+
+        <div id="fileName">
+            No image selected
+        </div>
+
+
+        <button
+            id="analyzeBtn"
+            class="analyze-btn"
+        >
+            🔍 Analyze Leaf
+        </button>
+
+    </section>
+
+
+    <!-- =====================================================
+         LOADING
+    ====================================================== -->
+
+    <div id="loading">
+
+        <div class="spinner"></div>
+
+        AI is analyzing the leaf...
+
+    </div>
+
+
+    <!-- ERROR -->
+
+    <div id="error"></div>
+
+
+    <!-- =====================================================
+         RESULTS
+    ====================================================== -->
+
+    <section id="results">
+
+
+        <div class="section-title">
+
+            <h2>
+                AI Analysis
+            </h2>
+
+            <p>
+                Vision Transformer analysis completed
+            </p>
+
+        </div>
+
+
+        <!-- =================================================
+             IMAGES
+        ================================================== -->
+
+        <div class="vision-grid">
+
+
+            <!-- ORIGINAL -->
+
+            <div class="vision-card">
+
+                <div class="vision-card-header">
+
+                    <h3>
+                        🖼️ Original Image
+                    </h3>
+
+                    <p>
+                        Uploaded plant leaf
+                    </p>
+
+                </div>
+
+
+                <div class="image-container">
+
+                    <img
+                        id="originalImage"
+                        src=""
+                        alt="Original plant leaf"
+                    >
+
+                </div>
+
+            </div>
+
+
+            <!-- AI VISION -->
+
+            <div class="vision-card">
+
+                <div class="vision-card-header">
+
+                    <h3>
+                        🔥 AI Vision
+                    </h3>
+
+                    <p>
+                        Areas receiving attention from the Vision Transformer
+                    </p>
+
+                </div>
+
+
+                <div class="image-container">
+
+                    <img
+                        id="attentionImage"
+                        src=""
+                        alt="AI attention heatmap"
+                    >
+
+                </div>
+
+            </div>
+
+
+        </div>
+
+
+        <!-- =================================================
+             MAIN PREDICTION
+        ================================================== -->
+
+        <div class="prediction-card">
+
+            <h3>
+                🎯 Top Prediction
+            </h3>
+
+
+            <div class="main-prediction">
+
+
+                <div>
+
+                    <div
+                        id="mainPlant"
+                        class="plant-label"
+                    >
+                        Plant
+                    </div>
+
+
+                    <div
+                        id="mainDisease"
+                        class="disease-name"
+                    >
+                        --
+                    </div>
+
+
+                    <div
+                        id="predictionStatus"
+                        style="
+                            margin-top:8px;
+                            color:#687269;
+                            font-size:14px;
+                        "
+                    >
+                        AI prediction
+                    </div>
+
+                </div>
+
+
+                <div>
+
+                    <div
+                        id="mainConfidence"
+                        class="confidence"
+                    >
+                        --
+                    </div>
+
+                    <div class="confidence-label">
+                        Confidence
+                    </div>
+
+                </div>
+
+
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+             DISEASE INFORMATION
+        ================================================== -->
+
+        <div class="prediction-card">
+
+            <h3>
+                🌿 Disease Information
+            </h3>
+
+
+            <div class="info-grid">
+
+
+                <!-- DESCRIPTION -->
+
+                <div class="info-box">
+
+                    <div class="info-icon">
+                        📋
+                    </div>
+
+                    <h4>
+                        Description
+                    </h4>
+
+                    <p id="description">
+                        --
+                    </p>
+
+                </div>
+
+
+                <!-- CAUSE -->
+
+                <div class="info-box">
+
+                    <div class="info-icon">
+                        🦠
+                    </div>
+
+                    <h4>
+                        Cause
+                    </h4>
+
+                    <p id="cause">
+                        --
+                    </p>
+
+                </div>
+
+
+                <!-- TREATMENT -->
+
+                <div class="info-box">
+
+                    <div class="info-icon">
+                        💊
+                    </div>
+
+                    <h4>
+                        Treatment
+                    </h4>
+
+                    <p id="treatment">
+                        --
+                    </p>
+
+                </div>
+
+
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+             TOP 3
+        ================================================== -->
+
+        <div class="prediction-card">
+
+            <h3>
+                🏆 Top 3 Predictions
+            </h3>
+
+
+            <div
+                id="topThree"
+                class="top-three"
+            ></div>
+
+        </div>
+
+
+        <!-- =================================================
+             RESET
+        ================================================== -->
+
+        <div class="actions">
+
+            <button
+                id="resetBtn"
+                class="reset-btn"
+            >
+                🔄 Analyze Another Image
+            </button>
+
+        </div>
+
+
+    </section>
+
+
+</main>
+
+
+<!-- =========================================================
+     FOOTER
+========================================================= -->
+
+<footer>
+
+    SmartCrop Vision
+    •
+    Vision Transformer Plant Disease Detection
+
+</footer>
+
+
+<script>
+
+
+    // ========================================================
+    // CONFIGURATION
+    // ========================================================
+
+    const API_URL =
+        "http://127.0.0.1:8000";
+
+
+    // ========================================================
+    // ELEMENTS
+    // ========================================================
+
+    const fileInput =
+        document.getElementById("fileInput");
+
+    const fileName =
+        document.getElementById("fileName");
+
+    const analyzeBtn =
+        document.getElementById("analyzeBtn");
+
+    const loading =
+        document.getElementById("loading");
+
+    const results =
+        document.getElementById("results");
+
+    const errorBox =
+        document.getElementById("error");
+
+    const originalImage =
+        document.getElementById("originalImage");
+
+    const attentionImage =
+        document.getElementById("attentionImage");
+
+    const mainPlant =
+        document.getElementById("mainPlant");
+
+    const mainDisease =
+        document.getElementById("mainDisease");
+
+    const mainConfidence =
+        document.getElementById("mainConfidence");
+
+    const predictionStatus =
+        document.getElementById("predictionStatus");
+
+    const description =
+        document.getElementById("description");
+
+    const cause =
+        document.getElementById("cause");
+
+    const treatment =
+        document.getElementById("treatment");
+
+    const topThree =
+        document.getElementById("topThree");
+
+    const resetBtn =
+        document.getElementById("resetBtn");
+
+    const uploadSection =
+        document.getElementById("uploadSection");
+
+
+    // ========================================================
+    // FILE SELECTED
+    // ========================================================
+
+    fileInput.addEventListener(
+        "change",
+        function () {
+
+            if (!fileInput.files.length) {
+
+                fileName.textContent =
+                    "No image selected";
+
+                analyzeBtn.style.display =
+                    "none";
+
+                return;
+            }
+
+
+            const file =
+                fileInput.files[0];
+
+
+            if (!file.type.startsWith("image/")) {
+
+                showError(
+                    "Please select a valid image file."
+                );
+
+                fileInput.value = "";
+
+                return;
+            }
+
+
+            fileName.textContent =
+                "Selected: " + file.name;
+
+
+            // Show original image immediately
+
+            originalImage.src =
+                URL.createObjectURL(file);
+
+
+            analyzeBtn.style.display =
+                "block";
+
+
+            errorBox.style.display =
+                "none";
+
+        }
+    );
+
+
+    // ========================================================
+    // DRAG AND DROP
+    // ========================================================
+
+    uploadSection.addEventListener(
+        "dragover",
+        function (event) {
+
+            event.preventDefault();
+
+            uploadSection.classList.add(
+                "dragover"
+            );
+
+        }
+    );
+
+
+    uploadSection.addEventListener(
+        "dragleave",
+        function () {
+
+            uploadSection.classList.remove(
+                "dragover"
+            );
+
+        }
+    );
+
+
+    uploadSection.addEventListener(
+        "drop",
+        function (event) {
+
+            event.preventDefault();
+
+            uploadSection.classList.remove(
+                "dragover"
+            );
+
+
+            const files =
+                event.dataTransfer.files;
+
+
+            if (!files.length) {
+                return;
+            }
+
+
+            const file =
+                files[0];
+
+
+            if (!file.type.startsWith("image/")) {
+
+                showError(
+                    "Please drop an image file."
+                );
+
+                return;
+            }
+
+
+            fileInput.files =
+                files;
+
+
+            fileName.textContent =
+                "Selected: " + file.name;
+
+
+            originalImage.src =
+                URL.createObjectURL(file);
+
+
+            analyzeBtn.style.display =
+                "block";
+
+
+            errorBox.style.display =
+                "none";
+
+        }
+    );
+
+
+    // ========================================================
+    // ANALYZE
+    // ========================================================
+
+    analyzeBtn.addEventListener(
+        "click",
+        analyzeImage
+    );
+
+
+    async function analyzeImage() {
+
+
+        if (!fileInput.files.length) {
+
+            showError(
+                "Please select an image first."
+            );
+
+            return;
+        }
+
+
+        const file =
+            fileInput.files[0];
+
+
+        // ----------------------------------------------------
+        // UI
+        // ----------------------------------------------------
+
+        loading.style.display =
+            "block";
+
+        results.style.display =
+            "none";
+
+        errorBox.style.display =
+            "none";
+
+        analyzeBtn.disabled =
+            true;
+
+
+        // ----------------------------------------------------
+        // FORM DATA
+        // ----------------------------------------------------
+
+        const formData =
+            new FormData();
+
+
+        formData.append(
+            "file",
+            file
+        );
+
+
+        try {
+
+
+            console.log(
+                "Sending image to SmartCrop Vision..."
+            );
+
+
+            // ------------------------------------------------
+            // API REQUEST
+            // ------------------------------------------------
+
+            const response =
+                await fetch(
+                    API_URL + "/predict",
+                    {
+                        method: "POST",
+                        body: formData
+                    }
+                );
+
+
+            console.log(
+                "API status:",
+                response.status
+            );
+
+
+            if (!response.ok) {
+
+                throw new Error(
+                    "API returned HTTP " +
+                    response.status
+                );
+
+            }
+
+
+            // ------------------------------------------------
+            // JSON
+            // ------------------------------------------------
+
+            const data =
+                await response.json();
+
+
+            console.log(
+                "API response:",
+                data
+            );
+
+
+            // ------------------------------------------------
+            // API ERROR
+            // ------------------------------------------------
+
+            if (!data.success) {
+
+                throw new Error(
+                    data.error ||
+                    "Prediction failed."
+                );
+
+            }
+
+
+            // =================================================
+            // ORIGINAL IMAGE
+            // =================================================
+
+            originalImage.src =
+                URL.createObjectURL(file);
+
+
+            // =================================================
+            // AI VISION
+            // =================================================
+
+            if (data.ai_vision_url) {
+
+
+                const visionURL =
+                    API_URL +
+                    data.ai_vision_url +
+                    "?t=" +
+                    Date.now();
+
+
+                console.log(
+                    "AI Vision URL:",
+                    visionURL
+                );
+
+
+                attentionImage.src =
+                    visionURL;
+
+
+                attentionImage.onload =
+                    function () {
+
+                        console.log(
+                            "AI Vision image loaded."
+                        );
+
+                    };
+
+
+                attentionImage.onerror =
+                    function () {
+
+                        console.error(
+                            "AI Vision image failed:",
+                            visionURL
+                        );
+
+                        showError(
+                            "Prediction worked, but the AI Vision image could not be loaded."
+                        );
+
+                    };
+
+            }
+
+
+            // =================================================
+            // TOP PREDICTION
+            // =================================================
+
+            const top =
+                data.top_prediction;
+
+
+            if (!top) {
+
+                throw new Error(
+                    "No top prediction returned by API."
+                );
+
+            }
+
+
+            mainPlant.textContent =
+                top.plant ||
+                getPlantName(top.disease);
+
+
+            mainDisease.textContent =
+                cleanDiseaseName(
+                    top.disease_name ||
+                    top.disease
+                );
+
+
+            mainConfidence.textContent =
+                (top.confidence ?? 0) +
+                "%";
+
+
+            // =================================================
+            // DISEASE INFORMATION
+            // =================================================
+
+            const info =
+                top.info || {};
+
+
+            description.textContent =
+                info.description ||
+                "Information is not available yet.";
+
+
+            cause.textContent =
+                info.cause ||
+                "Unknown";
+
+
+            treatment.textContent =
+                info.treatment ||
+                "Consult an agricultural expert for an appropriate diagnosis and treatment.";
+
+
+            // =================================================
+            // PREDICTION STATUS
+            // =================================================
+
+            if (
+                Number(top.confidence) >= 90
+            ) {
+
+                predictionStatus.textContent =
+                    "Very high confidence prediction";
+
+            }
+            else if (
+                Number(top.confidence) >= 70
+            ) {
+
+                predictionStatus.textContent =
+                    "High confidence prediction";
+
+            }
+            else {
+
+                predictionStatus.textContent =
+                    "Model prediction — verify with an expert";
+
+            }
+
+
+            // =================================================
+            // TOP 3
+            // =================================================
+
+            topThree.innerHTML =
+                "";
+
+
+            if (
+                Array.isArray(
+                    data.predictions
+                )
+            ) {
+
+
+                data.predictions.forEach(
+                    function (
+                        prediction,
+                        index
+                    ) {
+
+
+                        const row =
+                            document.createElement(
+                                "div"
+                            );
+
+
+                        row.className =
+                            "prediction-row";
+
+
+                        const left =
+                            document.createElement(
+                                "div"
+                            );
+
+
+                        left.className =
+                            "prediction-left";
+
+
+                        const rank =
+                            document.createElement(
+                                "div"
+                            );
+
+
+                        rank.className =
+                            "rank";
+
+
+                        rank.textContent =
+                            index + 1;
+
+
+                        const disease =
+                            document.createElement(
+                                "div"
+                            );
+
+
+                        disease.className =
+                            "prediction-disease";
+
+
+                        disease.textContent =
+                            (
+                                prediction.plant ||
+                                getPlantName(
+                                    prediction.disease
+                                )
+                            ) +
+                            " • " +
+                            cleanDiseaseName(
+                                prediction.disease_name ||
+                                prediction.disease
+                            );
+
+
+                        left.appendChild(
+                            rank
+                        );
+
+
+                        left.appendChild(
+                            disease
+                        );
+
+
+                        const confidence =
+                            document.createElement(
+                                "div"
+                            );
+
+
+                        confidence.className =
+                            "prediction-confidence";
+
+
+                        confidence.textContent =
+                            (
+                                prediction.confidence ??
+                                0
+                            ) +
+                            "%";
+
+
+                        row.appendChild(
+                            left
+                        );
+
+
+                        row.appendChild(
+                            confidence
+                        );
+
+
+                        topThree.appendChild(
+                            row
+                        );
+
+                    }
+                );
+
+            }
+
+
+            // =================================================
+            // SHOW RESULTS
+            // =================================================
+
+            results.style.display =
+                "block";
+
+
+            results.scrollIntoView({
+                behavior: "smooth",
+                block: "start"
+            });
+
+
+        }
+        catch (error) {
+
+
+            console.error(
+                "Prediction error:",
+                error
+            );
+
+
+            showError(
+                error.message ||
+                "Something went wrong."
+            );
+
+        }
+        finally {
+
+
+            loading.style.display =
+                "none";
+
+
+            analyzeBtn.disabled =
+                false;
+
+        }
+
+    }
+
+
+    // ========================================================
+    // CLEAN DISEASE NAME
+    // ========================================================
+
+    function cleanDiseaseName(
+        name
+    ) {
+
+
+        if (!name) {
+
+            return "--";
+
+        }
+
+
+        let value =
+            name;
+
+
+        if (
+            value.includes("___")
+        ) {
+
+            value =
+                value.split(
+                    "___"
+                )[1];
+
+        }
+
+
+        return value
+            .replaceAll(
+                "_",
+                " "
+            )
+            .replaceAll(
+                "-",
+                " "
+            );
+
+    }
+
+
+    // ========================================================
+    // GET PLANT NAME
+    // ========================================================
+
+    function getPlantName(
+        name
+    ) {
+
+
+        if (!name) {
+
+            return "Plant";
+
+        }
+
+
+        if (
+            name.includes("___")
+        ) {
+
+            return name
+                .split(
+                    "___"
+                )[0]
+                .replaceAll(
+                    "_",
+                    " "
+                );
+
+        }
+
+
+        return "Plant";
+
+    }
+
+
+    // ========================================================
+    // ERROR
+    // ========================================================
+
+    function showError(
+        message
+    ) {
+
+        errorBox.textContent =
+            message;
+
+
+        errorBox.style.display =
+            "block";
+
+
+        errorBox.scrollIntoView({
+            behavior: "smooth",
+            block: "center"
+        });
+
+    }
+
+
+    // ========================================================
+    // RESET
+    // ========================================================
+
+    resetBtn.addEventListener(
+        "click",
+        function () {
+
+
+            fileInput.value =
+                "";
+
+
+            fileName.textContent =
+                "No image selected";
+
+
+            analyzeBtn.style.display =
+                "none";
+
+
+            originalImage.src =
+                "";
+
+
+            attentionImage.src =
+                "";
+
+
+            mainPlant.textContent =
+                "Plant";
+
+
+            mainDisease.textContent =
+                "--";
+
+
+            mainConfidence.textContent =
+                "--";
+
+
+            description.textContent =
+                "--";
+
+
+            cause.textContent =
+                "--";
+
+
+            treatment.textContent =
+                "--";
+
+
+            topThree.innerHTML =
+                "";
+
+
+            results.style.display =
+                "none";
+
+
+            errorBox.style.display =
+                "none";
+
+
+            window.scrollTo({
+                top: 0,
+                behavior: "smooth"
+            });
+
+        }
+    );
+
+
+</script>
+
+
+</body>
+</html>

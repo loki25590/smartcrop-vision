@@ -1,0 +1,1462 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>SmartCrop Vision</title>
+
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            background: #f5f7f4;
+            color: #172018;
+            min-height: 100vh;
+        }
+
+
+        .container {
+            width: 92%;
+            max-width: 1200px;
+            margin: auto;
+        }
+
+
+        /* =====================================================
+           HEADER
+        ===================================================== */
+
+        header {
+            padding: 25px 0;
+            border-bottom: 1px solid #dce4dc;
+            background: white;
+        }
+
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+
+        .logo-icon {
+            font-size: 32px;
+        }
+
+
+        .logo h1 {
+            font-size: 25px;
+        }
+
+
+        .logo p {
+            color: #6d776e;
+            margin-top: 3px;
+            font-size: 14px;
+        }
+
+
+        /* =====================================================
+           HERO
+        ===================================================== */
+
+        .hero {
+            text-align: center;
+            padding: 55px 0 35px;
+        }
+
+
+        .hero h2 {
+            font-size: 42px;
+            margin-bottom: 15px;
+        }
+
+
+        .hero p {
+            color: #667066;
+            font-size: 17px;
+            max-width: 700px;
+            margin: auto;
+            line-height: 1.6;
+        }
+
+
+        .badge {
+            display: inline-block;
+            margin-bottom: 18px;
+            padding: 8px 15px;
+            border-radius: 30px;
+            background: #e7f5e9;
+            color: #247333;
+            font-size: 13px;
+            font-weight: bold;
+        }
+
+
+        /* =====================================================
+           UPLOAD
+        ===================================================== */
+
+        .upload-section {
+            background: white;
+            border: 2px dashed #b9c9ba;
+            border-radius: 18px;
+            padding: 35px;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+
+        .upload-section h3 {
+            margin-bottom: 10px;
+            font-size: 21px;
+        }
+
+
+        .upload-section p {
+            color: #717a72;
+            margin-bottom: 20px;
+        }
+
+
+        #fileInput {
+            display: none;
+        }
+
+
+        .upload-btn {
+            display: inline-block;
+            padding: 13px 24px;
+            background: #246b32;
+            color: white;
+            border-radius: 9px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+
+        .upload-btn:hover {
+            background: #1c5628;
+        }
+
+
+        #fileName {
+            margin-top: 15px;
+            color: #566057;
+            font-size: 14px;
+        }
+
+
+        .analyze-btn {
+            display: none;
+            margin: 20px auto 0;
+            border: none;
+            padding: 14px 30px;
+            background: #172018;
+            color: white;
+            border-radius: 9px;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: bold;
+        }
+
+
+        .analyze-btn:hover {
+            background: #303b31;
+        }
+
+
+        .analyze-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+
+        /* =====================================================
+           LOADING
+        ===================================================== */
+
+        #loading {
+            display: none;
+            text-align: center;
+            padding: 25px;
+            color: #246b32;
+            font-weight: bold;
+        }
+
+
+        .spinner {
+            width: 30px;
+            height: 30px;
+            border: 4px solid #dce8de;
+            border-top: 4px solid #246b32;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 12px;
+        }
+
+
+        @keyframes spin {
+
+            to {
+                transform: rotate(360deg);
+            }
+
+        }
+
+
+        /* =====================================================
+           ERROR
+        ===================================================== */
+
+        #error {
+            display: none;
+            padding: 18px;
+            background: #fff0f0;
+            border: 1px solid #efcaca;
+            color: #a52828;
+            border-radius: 10px;
+            margin-top: 20px;
+            text-align: center;
+        }
+
+
+        /* =====================================================
+           RESULTS
+        ===================================================== */
+
+        #results {
+            display: none;
+            margin-top: 35px;
+            margin-bottom: 60px;
+        }
+
+
+        .section-title {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+
+        .section-title h2 {
+            font-size: 28px;
+        }
+
+
+        .section-title p {
+            color: #707870;
+            margin-top: 7px;
+        }
+
+
+        /* =====================================================
+           VISION GRID
+        ===================================================== */
+
+        .vision-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+
+        .vision-card {
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            border: 1px solid #dce4dc;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.04);
+        }
+
+
+        .vision-card-header {
+            padding: 18px 20px;
+            border-bottom: 1px solid #e6ebe6;
+        }
+
+
+        .vision-card-header h3 {
+            font-size: 17px;
+        }
+
+
+        .vision-card-header p {
+            color: #737c74;
+            font-size: 13px;
+            margin-top: 5px;
+        }
+
+
+        .image-container {
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            background: #edf1ed;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+
+        .image-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            display: block;
+        }
+
+
+        /* =====================================================
+           PREDICTION CARDS
+        ===================================================== */
+
+        .prediction-card {
+            background: white;
+            border-radius: 16px;
+            border: 1px solid #dce4dc;
+            padding: 30px;
+            margin-bottom: 25px;
+        }
+
+
+        .prediction-card h3 {
+            margin-bottom: 20px;
+        }
+
+
+        /* =====================================================
+           MAIN PREDICTION
+        ===================================================== */
+
+        .main-prediction {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+            padding: 22px;
+            background: #f0f8f1;
+            border-radius: 12px;
+        }
+
+
+        .disease-name {
+            font-size: 22px;
+            font-weight: bold;
+            color: #205d2b;
+        }
+
+
+        .confidence {
+            font-size: 27px;
+            font-weight: bold;
+            color: #246b32;
+            white-space: nowrap;
+        }
+
+
+        .confidence-label {
+            font-size: 12px;
+            color: #69736a;
+            text-align: right;
+        }
+
+
+        /* =====================================================
+           DISEASE INFORMATION
+        ===================================================== */
+
+        .disease-info {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 18px;
+        }
+
+
+        .info-box {
+            background: #f8faf8;
+            border: 1px solid #e1e7e1;
+            border-radius: 14px;
+            padding: 22px;
+        }
+
+
+        .info-box h4 {
+            font-size: 16px;
+            margin-bottom: 10px;
+            color: #205d2b;
+        }
+
+
+        .info-box p {
+            color: #687269;
+            line-height: 1.6;
+            font-size: 14px;
+        }
+
+
+        /* =====================================================
+           TOP 3
+        ===================================================== */
+
+        .top-three {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+
+        .prediction-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px;
+            border: 1px solid #e1e7e1;
+            border-radius: 10px;
+        }
+
+
+        .prediction-left {
+            display: flex;
+            align-items: center;
+            gap: 13px;
+        }
+
+
+        .rank {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #edf4ee;
+            border-radius: 50%;
+            font-weight: bold;
+        }
+
+
+        .prediction-disease {
+            font-weight: 600;
+        }
+
+
+        .prediction-confidence {
+            font-weight: bold;
+            color: #246b32;
+        }
+
+
+        /* =====================================================
+           FOOTER
+        ===================================================== */
+
+        footer {
+            text-align: center;
+            padding: 30px;
+            color: #7b847b;
+            font-size: 13px;
+        }
+
+
+        /* =====================================================
+           MOBILE
+        ===================================================== */
+
+        @media (max-width: 800px) {
+
+            .hero h2 {
+                font-size: 32px;
+            }
+
+
+            .vision-grid {
+                grid-template-columns: 1fr;
+            }
+
+
+            .disease-info {
+                grid-template-columns: 1fr;
+            }
+
+
+            .main-prediction {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+
+            .confidence-label {
+                text-align: left;
+            }
+
+
+            .prediction-row {
+                gap: 10px;
+            }
+
+
+            .prediction-disease {
+                font-size: 14px;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<!-- =========================================================
+     HEADER
+========================================================= -->
+
+<header>
+
+    <div class="container">
+
+        <div class="logo">
+
+            <div class="logo-icon">
+                🌱
+            </div>
+
+            <div>
+
+                <h1>
+                    SmartCrop Vision
+                </h1>
+
+                <p>
+                    AI Plant Disease Detection
+                </p>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</header>
+
+
+<main class="container">
+
+
+<!-- =========================================================
+     HERO
+========================================================= -->
+
+<section class="hero">
+
+    <div class="badge">
+        ⚡ Vision Transformer Powered
+    </div>
+
+    <h2>
+        Detect Plant Diseases with AI
+    </h2>
+
+    <p>
+        Upload a plant leaf image and let SmartCrop Vision
+        identify potential diseases using a trained
+        Vision Transformer model.
+    </p>
+
+</section>
+
+
+<!-- =========================================================
+     UPLOAD
+========================================================= -->
+
+<section class="upload-section">
+
+    <h3>
+        Upload a leaf image
+    </h3>
+
+    <p>
+        Select a clear image of a plant leaf for analysis.
+    </p>
+
+
+    <label
+        for="fileInput"
+        class="upload-btn"
+    >
+        📁 Select Leaf Image
+    </label>
+
+
+    <input
+        type="file"
+        id="fileInput"
+        accept="image/*"
+    >
+
+
+    <div id="fileName">
+        No image selected
+    </div>
+
+
+    <button
+        id="analyzeBtn"
+        class="analyze-btn"
+    >
+        🔍 Analyze Leaf
+    </button>
+
+</section>
+
+
+<!-- =========================================================
+     LOADING
+========================================================= -->
+
+<div id="loading">
+
+    <div class="spinner"></div>
+
+    AI is analyzing the leaf...
+
+</div>
+
+
+<!-- =========================================================
+     ERROR
+========================================================= -->
+
+<div id="error"></div>
+
+
+<!-- =========================================================
+     RESULTS
+========================================================= -->
+
+<section id="results">
+
+
+    <div class="section-title">
+
+        <h2>
+            AI Analysis
+        </h2>
+
+        <p>
+            Vision Transformer analysis completed
+        </p>
+
+    </div>
+
+
+    <!-- =====================================================
+         ORIGINAL + AI VISION
+    ====================================================== -->
+
+    <div class="vision-grid">
+
+
+        <!-- ORIGINAL -->
+
+        <div class="vision-card">
+
+            <div class="vision-card-header">
+
+                <h3>
+                    Original Image
+                </h3>
+
+                <p>
+                    Uploaded leaf
+                </p>
+
+            </div>
+
+
+            <div class="image-container">
+
+                <img
+                    id="originalImage"
+                    src=""
+                    alt="Original leaf"
+                >
+
+            </div>
+
+        </div>
+
+
+        <!-- AI VISION -->
+
+        <div class="vision-card">
+
+            <div class="vision-card-header">
+
+                <h3>
+                    🔥 AI Focus
+                </h3>
+
+                <p>
+                    Vision Transformer attention heatmap
+                </p>
+
+            </div>
+
+
+            <div class="image-container">
+
+                <img
+                    id="attentionImage"
+                    src=""
+                    alt="AI Vision attention heatmap"
+                >
+
+            </div>
+
+        </div>
+
+
+    </div>
+
+
+    <!-- =====================================================
+         MAIN PREDICTION
+    ====================================================== -->
+
+    <div class="prediction-card">
+
+        <h3>
+            Top Prediction
+        </h3>
+
+
+        <div class="main-prediction">
+
+            <div>
+
+                <div
+                    id="mainDisease"
+                    class="disease-name"
+                >
+                    --
+                </div>
+
+
+                <div
+                    style="
+                    margin-top:7px;
+                    color:#687269;
+                    "
+                >
+                    High confidence prediction
+                </div>
+
+            </div>
+
+
+            <div>
+
+                <div
+                    id="mainConfidence"
+                    class="confidence"
+                >
+                    --
+                </div>
+
+
+                <div class="confidence-label">
+                    Confidence
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         DISEASE INFORMATION
+    ====================================================== -->
+
+    <div class="prediction-card">
+
+        <h3>
+            🌿 Disease Information
+        </h3>
+
+
+        <div class="disease-info">
+
+
+            <!-- DESCRIPTION -->
+
+            <div class="info-box">
+
+                <h4>
+                    📋 Description
+                </h4>
+
+                <p id="diseaseDescription">
+                    --
+                </p>
+
+            </div>
+
+
+            <!-- CAUSE -->
+
+            <div class="info-box">
+
+                <h4>
+                    🦠 Cause
+                </h4>
+
+                <p id="diseaseCause">
+                    --
+                </p>
+
+            </div>
+
+
+            <!-- TREATMENT -->
+
+            <div class="info-box">
+
+                <h4>
+                    💊 Treatment
+                </h4>
+
+                <p id="diseaseTreatment">
+                    --
+                </p>
+
+            </div>
+
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         TOP 3
+    ====================================================== -->
+
+    <div class="prediction-card">
+
+        <h3>
+            Top 3 Predictions
+        </h3>
+
+
+        <div
+            id="topThree"
+            class="top-three"
+        >
+        </div>
+
+    </div>
+
+
+</section>
+
+
+</main>
+
+
+<!-- =========================================================
+     FOOTER
+========================================================= -->
+
+<footer>
+
+    SmartCrop Vision •
+    Vision Transformer Plant Disease Detection
+
+</footer>
+
+
+<script>
+
+
+// ============================================================
+// CONFIGURATION
+// ============================================================
+
+const API_URL =
+    "http://127.0.0.1:8000";
+
+
+// ============================================================
+// ELEMENTS
+// ============================================================
+
+const fileInput =
+    document.getElementById("fileInput");
+
+
+const fileName =
+    document.getElementById("fileName");
+
+
+const analyzeBtn =
+    document.getElementById("analyzeBtn");
+
+
+const loading =
+    document.getElementById("loading");
+
+
+const results =
+    document.getElementById("results");
+
+
+const errorBox =
+    document.getElementById("error");
+
+
+const originalImage =
+    document.getElementById("originalImage");
+
+
+const attentionImage =
+    document.getElementById("attentionImage");
+
+
+const mainDisease =
+    document.getElementById("mainDisease");
+
+
+const mainConfidence =
+    document.getElementById("mainConfidence");
+
+
+const diseaseDescription =
+    document.getElementById("diseaseDescription");
+
+
+const diseaseCause =
+    document.getElementById("diseaseCause");
+
+
+const diseaseTreatment =
+    document.getElementById("diseaseTreatment");
+
+
+const topThree =
+    document.getElementById("topThree");
+
+
+// ============================================================
+// FILE SELECTED
+// ============================================================
+
+fileInput.addEventListener(
+    "change",
+    function () {
+
+
+        if (!fileInput.files.length) {
+
+            fileName.textContent =
+                "No image selected";
+
+            analyzeBtn.style.display =
+                "none";
+
+            return;
+        }
+
+
+        const file =
+            fileInput.files[0];
+
+
+        fileName.textContent =
+            "Selected: " + file.name;
+
+
+        // Show original image immediately
+
+        originalImage.src =
+            URL.createObjectURL(file);
+
+
+        analyzeBtn.style.display =
+            "block";
+
+
+        errorBox.style.display =
+            "none";
+
+
+        results.style.display =
+            "none";
+
+    }
+);
+
+
+// ============================================================
+// ANALYZE BUTTON
+// ============================================================
+
+analyzeBtn.addEventListener(
+    "click",
+    async function () {
+
+
+        if (!fileInput.files.length) {
+
+            showError(
+                "Please select an image first."
+            );
+
+            return;
+        }
+
+
+        const file =
+            fileInput.files[0];
+
+
+        // ----------------------------------------------------
+        // UI
+        // ----------------------------------------------------
+
+        loading.style.display =
+            "block";
+
+
+        results.style.display =
+            "none";
+
+
+        errorBox.style.display =
+            "none";
+
+
+        analyzeBtn.disabled =
+            true;
+
+
+        // ----------------------------------------------------
+        // FORM DATA
+        // ----------------------------------------------------
+
+        const formData =
+            new FormData();
+
+
+        formData.append(
+            "file",
+            file
+        );
+
+
+        try {
+
+
+            console.log(
+                "Sending image to API..."
+            );
+
+
+            // =================================================
+            // API REQUEST
+            // =================================================
+
+            const response =
+                await fetch(
+                    API_URL + "/predict",
+                    {
+                        method: "POST",
+                        body: formData
+                    }
+                );
+
+
+            console.log(
+                "API status:",
+                response.status
+            );
+
+
+            // =================================================
+            // HTTP ERROR
+            // =================================================
+
+            if (!response.ok) {
+
+                throw new Error(
+                    "API returned HTTP " +
+                    response.status
+                );
+
+            }
+
+
+            // =================================================
+            // JSON RESPONSE
+            // =================================================
+
+            const data =
+                await response.json();
+
+
+            console.log(
+                "API response:",
+                data
+            );
+
+
+            // =================================================
+            // API ERROR
+            // =================================================
+
+            if (!data.success) {
+
+                throw new Error(
+                    data.error ||
+                    "Prediction failed"
+                );
+
+            }
+
+
+            // =================================================
+            // ORIGINAL IMAGE
+            // =================================================
+
+            originalImage.src =
+                URL.createObjectURL(file);
+
+
+            // =================================================
+            // AI VISION IMAGE
+            // =================================================
+
+            if (data.ai_vision_url) {
+
+
+                const visionURL =
+                    API_URL +
+                    data.ai_vision_url +
+                    "?t=" +
+                    Date.now();
+
+
+                console.log(
+                    "AI Vision URL:",
+                    visionURL
+                );
+
+
+                attentionImage.src =
+                    visionURL;
+
+
+                attentionImage.style.display =
+                    "block";
+
+
+                attentionImage.onload =
+                    function () {
+
+                        console.log(
+                            "AI Vision image loaded successfully."
+                        );
+
+                    };
+
+
+                attentionImage.onerror =
+                    function () {
+
+                        console.error(
+                            "AI Vision image failed to load:",
+                            visionURL
+                        );
+
+
+                        showError(
+                            "Prediction worked, but the AI Vision image could not be loaded."
+                        );
+
+                    };
+
+
+            } else {
+
+
+                console.error(
+                    "API did not return ai_vision_url"
+                );
+
+
+                showError(
+                    "API prediction worked, but no AI Vision image URL was returned."
+                );
+
+            }
+
+
+            // =================================================
+            // TOP PREDICTION
+            // =================================================
+
+            const top =
+                data.top_prediction;
+
+
+            mainDisease.textContent =
+                formatDisease(
+                    top.disease
+                );
+
+
+            mainConfidence.textContent =
+                top.confidence +
+                "%";
+
+
+            // =================================================
+            // DISEASE INFORMATION
+            // =================================================
+
+            if (top.info) {
+
+
+                diseaseDescription.textContent =
+                    top.info.description ||
+                    "--";
+
+
+                diseaseCause.textContent =
+                    top.info.cause ||
+                    "--";
+
+
+                diseaseTreatment.textContent =
+                    top.info.treatment ||
+                    "--";
+
+
+            } else {
+
+
+                diseaseDescription.textContent =
+                    "Information not available.";
+
+
+                diseaseCause.textContent =
+                    "Unknown";
+
+
+                diseaseTreatment.textContent =
+                    "Consult an agricultural expert.";
+
+            }
+
+
+            // =================================================
+            // TOP 3 PREDICTIONS
+            // =================================================
+
+            topThree.innerHTML =
+                "";
+
+
+            data.predictions.forEach(
+                function (
+                    prediction,
+                    index
+                ) {
+
+
+                    const row =
+                        document.createElement(
+                            "div"
+                        );
+
+
+                    row.className =
+                        "prediction-row";
+
+
+                    row.innerHTML = `
+
+                        <div class="prediction-left">
+
+                            <div class="rank">
+                                ${index + 1}
+                            </div>
+
+                            <div class="prediction-disease">
+
+                                ${formatDisease(
+                                    prediction.disease
+                                )}
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="prediction-confidence">
+
+                            ${prediction.confidence}%
+
+                        </div>
+
+                    `;
+
+
+                    topThree.appendChild(
+                        row
+                    );
+
+                }
+            );
+
+
+            // =================================================
+            // SHOW RESULTS
+            // =================================================
+
+            results.style.display =
+                "block";
+
+
+            results.scrollIntoView({
+                behavior: "smooth"
+            });
+
+
+        } catch (error) {
+
+
+            console.error(
+                "Prediction error:",
+                error
+            );
+
+
+            showError(
+                error.message
+            );
+
+
+        } finally {
+
+
+            loading.style.display =
+                "none";
+
+
+            analyzeBtn.disabled =
+                false;
+
+        }
+
+    }
+);
+
+
+// ============================================================
+// FORMAT DISEASE NAME
+// ============================================================
+
+function formatDisease(name) {
+
+
+    if (!name) {
+
+        return "--";
+
+    }
+
+
+    const parts =
+        name.split("___");
+
+
+    if (parts.length === 2) {
+
+
+        const plant =
+            parts[0]
+                .replaceAll(
+                    "_",
+                    " "
+                );
+
+
+        const disease =
+            parts[1]
+                .replaceAll(
+                    "_",
+                    " "
+                );
+
+
+        return (
+            plant +
+            " • " +
+            disease
+        );
+
+    }
+
+
+    return name.replaceAll(
+        "_",
+        " "
+    );
+
+}
+
+
+// ============================================================
+// ERROR FUNCTION
+// ============================================================
+
+function showError(message) {
+
+
+    errorBox.textContent =
+        message;
+
+
+    errorBox.style.display =
+        "block";
+
+}
+
+</script>
+
+
+</body>
+
+</html>
+```
