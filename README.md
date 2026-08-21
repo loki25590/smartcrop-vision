@@ -1,263 +1,250 @@
-Yes. Your current README is very basic and still says **“under development”**, so Phase 5 should upgrade it to reflect what you've actually built.
-
-We should **not claim metrics you haven't confirmed**. We can add placeholders for accuracy later.
-
-Replace the contents of `README.md` with this:
-
 # 🌱 SmartCrop Vision
 
-### AI-Powered Plant Disease Detection using Vision Transformers
+SmartCrop Vision is a plant disease detection project I built to explore how a computer vision model can be turned into a complete working application.
 
-SmartCrop Vision is an AI-powered plant disease detection system that analyzes plant leaf images and predicts potential diseases using a trained **Vision Transformer (ViT)** model.
-
-The system combines deep learning, model interpretability, and a FastAPI backend with an interactive web interface to provide disease predictions, confidence scores, disease information, and AI attention visualizations.
+The idea is simple: upload a picture of a plant leaf, and the system analyzes it using a Vision Transformer and predicts the most likely disease. The application also provides the confidence score, health status, severity, treatment information, prevention tips, and an AI attention visualization.
 
 ---
 
-## 🎯 Project Overview
+## 🚀 What I Built
 
-Plant diseases can significantly affect crop health and agricultural productivity. Early identification can help farmers and growers take appropriate action before the disease spreads.
+Instead of keeping the project as only a trained ML model, I built the complete pipeline around it:
 
-SmartCrop Vision aims to simplify this process:
-
-```text
-Plant Leaf Image
-       ↓
-Image Preprocessing
-       ↓
-Vision Transformer
-       ↓
-Disease Classification
-       ↓
-Top Predictions + Confidence
-       ↓
-Disease Information
-       ↓
-AI Attention Heatmap
-```
-
-The application allows users to upload a plant leaf image and receive an AI-generated prediction through a web interface.
+* Plant disease classification using a Vision Transformer
+* Image preprocessing and model inference
+* FastAPI backend for serving predictions
+* Web interface for uploading leaf images
+* Confidence and severity information
+* Disease treatment and prevention information
+* AI attention visualization
+* Dockerized backend
+* Responsive web interface
 
 ---
 
-## ✨ Features
-
-### 🧠 AI Disease Classification
-
-* Vision Transformer-based image classification
-* Multi-crop disease recognition
-* Top-3 predictions
-* Confidence scores
-* Plant and disease name extraction
-
-### 🔥 AI Attention Visualization
-
-SmartCrop Vision generates an attention heatmap showing the regions of the image that received significant attention from the Vision Transformer.
-
-This provides a visual interpretation of what the model focused on during prediction.
-
-### 🌿 Disease Information
-
-For supported diseases, the system provides:
-
-* Disease description
-* Cause
-* Treatment
-* Plant information
-
-### ⚡ FastAPI Backend
-
-The prediction system is exposed through a FastAPI endpoint:
+## 🔄 Application Flow
 
 ```text
-POST /predict
+                    ┌───────────────────┐
+                    │   User uploads    │
+                    │    leaf image     │
+                    └─────────┬─────────┘
+                              │
+                              ▼
+                    ┌───────────────────┐
+                    │ Image Validation  │
+                    │  & Preprocessing  │
+                    └─────────┬─────────┘
+                              │
+                              ▼
+                    ┌───────────────────┐
+                    │ Vision Transformer│
+                    │      Model        │
+                    └─────────┬─────────┘
+                              │
+                              ▼
+                    ┌───────────────────┐
+                    │ Disease Prediction│
+                    │   & Confidence    │
+                    └─────────┬─────────┘
+                              │
+                 ┌────────────┼────────────┐
+                 │            │            │
+                 ▼            ▼            ▼
+          ┌────────────┐ ┌──────────┐ ┌──────────────┐
+          │   Health   │ │ Severity │ │ AI Attention │
+          │   Status   │ │  Level   │ │ Visualization│
+          └─────┬──────┘ └────┬─────┘ └──────┬───────┘
+                │             │              │
+                └─────────────┼──────────────┘
+                              ▼
+                    ┌───────────────────┐
+                    │ Disease Details   │
+                    │ Treatment &       │
+                    │ Prevention        │
+                    └─────────┬─────────┘
+                              │
+                              ▼
+                    ┌───────────────────┐
+                    │    Web UI Result  │
+                    └───────────────────┘
 ```
-
-The API accepts a plant leaf image and returns structured JSON containing the prediction results.
-
-### 💻 Interactive Web Interface
-
-The frontend provides:
-
-* Image upload
-* Image preview
-* AI analysis
-* Prediction results
-* Confidence scores
-* Top-3 predictions
-* Disease information
-* AI attention heatmap
-* Analyze-another-image workflow
 
 ---
 
 ## 🏗️ System Architecture
 
 ```text
-                  ┌─────────────────────┐
-                  │     User Image      │
-                  └──────────┬──────────┘
+┌──────────────────────────────────────────────────────────────┐
+│                           USER                               │
+│                                                              │
+│                  Uploads Plant Leaf Image                    │
+└────────────────────────────┬─────────────────────────────────┘
                              │
+                             │ HTTP Request
                              ▼
-                  ┌─────────────────────┐
-                  │     Web Frontend    │
-                  │      HTML/CSS/JS    │
-                  └──────────┬──────────┘
+┌──────────────────────────────────────────────────────────────┐
+│                        FRONTEND                              │
+│                                                              │
+│                    HTML / CSS / JavaScript                   │
+│                                                              │
+│  • Image Upload                                               │
+│  • Loading State                                               │
+│  • Prediction Results                                          │
+│  • Confidence                                                  │
+│  • Disease Information                                         │
+│  • Treatment / Prevention                                      │
+│  • AI Attention Visualization                                  │
+└────────────────────────────┬─────────────────────────────────┘
                              │
                              │ POST /predict
                              ▼
-                  ┌─────────────────────┐
-                  │      FastAPI        │
-                  │      Backend        │
-                  └──────────┬──────────┘
+┌──────────────────────────────────────────────────────────────┐
+│                     FASTAPI BACKEND                           │
+│                                                              │
+│                       src/predict.py                          │
+│                                                              │
+│  • Receives image                                             │
+│  • Validates input                                            │
+│  • Preprocesses image                                         │
+│  • Runs model inference                                       │
+│  • Processes prediction                                       │
+│  • Builds API response                                        │
+└────────────────────────────┬─────────────────────────────────┘
                              │
                              ▼
-                  ┌─────────────────────┐
-                  │ Image Preprocessing │
-                  └──────────┬──────────┘
+┌──────────────────────────────────────────────────────────────┐
+│                  MACHINE LEARNING LAYER                       │
+│                                                              │
+│                  Vision Transformer (ViT)                     │
+│                                                              │
+│       Image → Features → Classification → Probabilities      │
+│                                                              │
+│  • Disease Classification                                     │
+│  • Confidence Scores                                           │
+│  • Top Predictions                                             │
+│  • Attention Information                                       │
+└────────────────────────────┬─────────────────────────────────┘
                              │
                              ▼
-                  ┌─────────────────────┐
-                  │ Vision Transformer  │
-                  │      Model          │
-                  └──────────┬──────────┘
-                             │
-                  ┌──────────┴──────────┐
-                  ▼                     ▼
-        ┌─────────────────┐   ┌─────────────────┐
-        │ Disease         │   │ Attention       │
-        │ Prediction      │   │ Heatmap         │
-        └────────┬────────┘   └────────┬────────┘
-                 │                     │
-                 └──────────┬──────────┘
-                            ▼
-                  ┌─────────────────────┐
-                  │     JSON Response   │
-                  │ Prediction + Info   │
-                  └──────────┬──────────┘
+┌──────────────────────────────────────────────────────────────┐
+│                    RESULT PROCESSING                           │
+│                                                              │
+│ Prediction → Disease Info → Severity → Treatment              │
+│                              ↓                               │
+│                          Prevention                            │
+└────────────────────────────┬─────────────────────────────────┘
                              │
                              ▼
-                  ┌─────────────────────┐
-                  │    Web Interface    │
-                  └─────────────────────┘
+┌──────────────────────────────────────────────────────────────┐
+│                         WEB UI                                │
+│                                                              │
+│                    Plant Health Report                        │
+└──────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## 🔄 Prediction Workflow
+## 🧠 Machine Learning
 
-1. User selects a plant leaf image.
-2. The frontend sends the image to the FastAPI backend.
-3. The backend validates and preprocesses the image.
-4. The Vision Transformer processes the image.
-5. The model produces class probabilities.
-6. The system selects the highest-probability predictions.
-7. Plant and disease names are extracted from the class name.
-8. Disease information is retrieved.
-9. An attention visualization is generated.
-10. The API returns the prediction results.
-11. The frontend displays the analysis.
+The core of SmartCrop Vision is a **Vision Transformer (ViT)** used for plant disease image classification.
 
----
+The model takes a processed leaf image and predicts the most likely disease class.
 
-## 🧠 Model
-
-SmartCrop Vision uses a **Vision Transformer (ViT)** for image classification.
-
-Unlike traditional convolution-based approaches, Vision Transformers divide an image into patches and process relationships between these patches using transformer-based attention mechanisms.
-
-The attention mechanism also allows the project to generate visualizations showing which image regions contributed to the model's prediction.
-
-### Model Output
-
-The model produces class probabilities such as:
-
-```json
-[
-    {
-        "disease": "Strawberry___Leaf_scorch",
-        "confidence": 99.78
-    },
-    {
-        "disease": "Strawberry___healthy",
-        "confidence": 0.03
-    },
-    {
-        "disease": "Tomato___Septoria_leaf_spot",
-        "confidence": 0.02
-    }
-]
-```
-
----
-
-## 🔥 Model Interpretability
-
-One of the main features of SmartCrop Vision is its AI attention visualization.
-
-Example workflow:
+The inference pipeline is:
 
 ```text
-Original Leaf
-      ↓
+Input Image
+     ↓
+Image Preprocessing
+     ↓
 Vision Transformer
-      ↓
-Attention Extraction
-      ↓
-Attention Heatmap
+     ↓
+Class Probabilities
+     ↓
+Top Predictions
+     ↓
+Disease Information
 ```
 
-The heatmap helps visualize the regions receiving attention from the model.
-
-This makes the system more interpretable than a classifier that only returns a disease name.
+The model output is then combined with application-level information such as disease severity, treatment, and prevention guidance before being returned to the frontend.
 
 ---
 
-## 🌿 Disease Information
+## 🔬 Example Prediction
 
-The application maintains disease information that can be returned alongside predictions.
+One of my test predictions produced:
 
-Example:
-
-```json
-{
-    "description": "A fungal disease that causes purple or brown spots and scorched areas on strawberry leaves.",
-    "cause": "Fungus",
-    "treatment": "Remove infected leaves, improve air circulation, and avoid excessive leaf moisture."
-}
+```text
+Plant       : Strawberry
+Disease     : Leaf Scorch
+Confidence  : 99.78%
+Severity    : High
+Status      : Diseased
 ```
 
-The system can be extended with additional agricultural information as more diseases are added.
+The application also displays:
+
+* Disease description
+* Possible cause
+* Treatment
+* Prevention
+* AI attention visualization
+* Alternative predictions
 
 ---
 
-## 📊 Model Evaluation
+## 🌐 Web Interface
 
-Model evaluation is maintained separately from the inference application.
+The frontend was designed to make the model easy to use instead of requiring users to interact directly with the API.
 
-Current evaluation artifacts include:
+The workflow from the user's perspective is:
 
-* Confusion matrix
-* Training logs
-* Model checkpoint
-* Evaluation outputs
+```text
+Upload Image
+     ↓
+Analyze with AI
+     ↓
+AI Processing
+     ↓
+Plant Health Report
+     ↓
+Disease + Confidence
+     ↓
+Treatment + Prevention
+     ↓
+AI Attention
+```
 
-### Evaluation Metrics
-
-The following metrics can be documented here after final evaluation:
-
-| Metric    | Result |
-| --------- | -----: |
-| Accuracy  |    TBD |
-| Precision |    TBD |
-| Recall    |    TBD |
-| F1 Score  |    TBD |
-
-> These values will be updated with the final measured evaluation results.
+The interface is responsive so that it can also be used on smaller screens.
 
 ---
 
-## ⚡ API
+## 📸 Screenshots
+
+### Home Interface
+
+![SmartCrop Vision Home](screenshots/home.png)
+
+### Prediction Result and AI Attention
+
+![SmartCrop Vision Prediction](screenshots/prediction.png)
+
+---
+
+## 🎥 Demo
+
+I recorded a short demo showing the complete workflow:
+
+**Upload Leaf → AI Analysis → Disease Prediction → Treatment Information → AI Attention**
+
+*Add the demo video link here.*
+
+---
+
+## 🚀 FastAPI Backend
+
+The trained model is exposed through a FastAPI REST API.
 
 ### Prediction Endpoint
 
@@ -265,284 +252,173 @@ The following metrics can be documented here after final evaluation:
 POST /predict
 ```
 
-### Request
-
-The endpoint accepts an image using multipart form data.
-
-Example:
+### Example Request
 
 ```bash
-curl -X POST "http://127.0.0.1:8000/predict" \
-     -F "file=@test.jpg"
+curl -X POST "http://localhost:8000/predict" \
+  -F "file=@test.jpg"
 ```
 
-### Example Response
-
-```json
-{
-    "success": true,
-    "top_prediction": {
-        "disease": "Strawberry___Leaf_scorch",
-        "plant": "Strawberry",
-        "disease_name": "Leaf_scorch",
-        "confidence": 99.78
-    },
-    "predictions": [
-        {
-            "disease": "Strawberry___Leaf_scorch",
-            "plant": "Strawberry",
-            "disease_name": "Leaf_scorch",
-            "confidence": 99.78
-        }
-    ],
-    "ai_vision_url": "/outputs/attention_example.jpg"
-}
-```
-
-The exact attention filename is generated dynamically for each prediction.
+The API receives the image, runs the model, processes the prediction, and returns the information required by the frontend.
 
 ---
 
-## 📁 Project Structure
+## 🐳 Docker
 
-```text
-smartcrop-vision/
-│
-├── app/
-│   ├── index.html
-│   ├── disease_info.py
-│   └── ...
-│
-├── src/
-│   ├── predict.py
-│   ├── api.py
-│   └── ...
-│
-├── models/
-│   └── ...
-│
-├── configs/
-│   └── ...
-│
-├── data/
-│   └── ...
-│
-├── notebooks/
-│   └── ...
-│
-├── outputs/
-│   └── ...
-│
-├── logs/
-│   └── ...
-│
-├── tests/
-│   └── ...
-│
-├── checkpoint.pth
-├── confusion_matrix.npy
-├── confusion_matrix.png
-├── requirements.txt
-├── .gitignore
-└── README.md
-```
+I also containerized the backend using Docker so that the application can be run in a consistent environment.
 
-> Generated files, datasets, virtual environments, and large model artifacts should be excluded from GitHub when appropriate.
-
----
-
-## 🛠️ Technology Stack
-
-### Machine Learning
-
-* Python
-* PyTorch
-* Vision Transformers
-* NumPy
-* Pandas
-
-### Computer Vision
-
-* OpenCV
-* PIL/Pillow
-
-### Backend
-
-* FastAPI
-* Uvicorn
-* Python
-
-### Frontend
-
-* HTML
-* CSS
-* JavaScript
-
-### Development
-
-* Git
-* GitHub
-* Jupyter Notebook
-
----
-
-## ⚙️ Installation
-
-Clone the repository:
+### Build
 
 ```bash
-git clone <YOUR_GITHUB_REPOSITORY_URL>
-
-cd smartcrop-vision
+docker build -t smartcrop-vision .
 ```
 
-Create a virtual environment:
+### Run
 
 ```bash
-python -m venv .venv
-```
-
-Activate it on Linux/macOS:
-
-```bash
-source .venv/bin/activate
-```
-
-Install dependencies:
-
-```bash
-pip install -r requirements.txt
-```
-
----
-
-## ▶️ Running the Backend
-
-Start the FastAPI server:
-
-```bash
-uvicorn src.predict:app --reload --port 8000
+docker run --rm -p 8000:8000 smartcrop-vision
 ```
 
 The API will be available at:
 
 ```text
-http://127.0.0.1:8000
-```
-
-FastAPI documentation:
-
-```text
-http://127.0.0.1:8000/docs
+http://localhost:8000
 ```
 
 ---
 
-## 💻 Running the Frontend
+## 🛠️ Tech Stack
 
-From the project directory:
-
-```bash
-python -m http.server 5500 --directory app
-```
-
-Then open:
-
-```text
-http://127.0.0.1:5500
-```
-
-The frontend communicates with the FastAPI backend to perform predictions.
-
----
-
-## 🧪 Testing the API
-
-Example:
-
-```bash
-curl -X POST "http://127.0.0.1:8000/predict" \
-     -F "file=@test.jpg"
-```
-
-For formatted JSON:
-
-```bash
-curl -s -X POST "http://127.0.0.1:8000/predict" \
-     -F "file=@test.jpg" | python -m json.tool
-```
+| Technology                | Used For                 |
+| ------------------------- | ------------------------ |
+| Python                    | ML and backend           |
+| PyTorch                   | Deep learning            |
+| Hugging Face Transformers | Vision Transformer       |
+| FastAPI                   | REST API                 |
+| Pillow                    | Image processing         |
+| Matplotlib                | Visualization            |
+| HTML                      | Frontend                 |
+| CSS                       | UI and responsive design |
+| JavaScript                | Frontend interaction     |
+| Docker                    | Containerization         |
+| Git & GitHub              | Version control          |
 
 ---
 
-## 📸 Screenshots
-
-Add screenshots of the completed application here.
-
-Recommended screenshots:
-
-### Home Page
+## 📂 Project Structure
 
 ```text
-![SmartCrop Vision Home](screenshots/home.png)
+smartcrop-vision/
+│
+├── app/
+│   └── index.html
+│
+├── src/
+│   ├── predict.py
+│   ├── train.py
+│   ├── evaluate.py
+│   ├── dataset.py
+│   ├── data_loader.py
+│   ├── gradcam.py
+│   └── analyze_errors.py
+│
+├── screenshots/
+│   ├── home.png
+│   └── prediction.png
+│
+├── Dockerfile
+├── .dockerignore
+├── .gitignore
+├── requirements.txt
+├── requirements-deploy.txt
+└── README.md
 ```
 
-### Prediction Result
+---
 
-```text
-![Prediction Result](screenshots/prediction.png)
+## 💻 Running Locally
+
+### 1. Clone the repository
+
+```bash
+git clone https://github.com/loki25590/smartcrop-vision.git
+cd smartcrop-vision
 ```
 
-### AI Attention Heatmap
+### 2. Create a virtual environment
 
-```text
-![AI Attention Heatmap](screenshots/attention.png)
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
 ```
 
-### Disease Information
+### 3. Install dependencies
 
-```text
-![Disease Information](screenshots/disease-info.png)
+```bash
+pip install -r requirements.txt
 ```
+
+### 4. Start FastAPI
+
+```bash
+uvicorn src.predict:app --host 0.0.0.0 --port 8000
+```
+
+---
+
+## ⚠️ Limitations
+
+The model's prediction depends on the quality of the uploaded image and how similar the image is to the training data.
+
+Real-world field conditions can be different from the images used during training.
+
+For this reason, the system should be considered an **AI-assisted tool** rather than a replacement for professional agricultural diagnosis.
 
 ---
 
 ## 🔮 Future Improvements
 
-Potential future improvements include:
+Some improvements I would like to work on next:
 
-* More crop and disease classes
-* Larger and more diverse datasets
-* Improved model calibration
-* Mobile application
-* Cloud deployment
-* User prediction history
-* Disease severity estimation
-* Treatment recommendation improvements
-* Multilingual agricultural guidance
-* Farmer-focused reporting
-* Continuous model improvement
+* Support more crops and disease classes
+* Improve model accuracy
+* Improve confidence calibration
+* GPU-based inference
+* Public cloud deployment
+* Dedicated mobile application
+* Weather-based disease risk prediction
+* Better model explainability
 
 ---
 
-## 🎓 Project Highlights
+## 📚 What I Learned
 
-SmartCrop Vision demonstrates the integration of:
+This project helped me understand that building an ML application is more than just training a model.
+
+While working on SmartCrop Vision, I got hands-on experience with:
+
+* Vision Transformer inference
+* Image preprocessing
+* FastAPI
+* Frontend/backend integration
+* Docker
+* Model output processing
+* AI visualization
+* Debugging and deployment
+
+The biggest lesson for me was connecting the different parts together:
 
 ```text
-Deep Learning
-      +
-Computer Vision
-      +
-Vision Transformers
-      +
-Model Interpretability
-      +
-FastAPI
-      +
-Web Development
+Machine Learning
+       +
+Backend API
+       +
+Frontend
+       +
+Docker
+       =
+Complete ML Application
 ```
-
-The project is designed to demonstrate how a trained machine learning model can be transformed into a complete end-to-end AI application.
 
 ---
 
@@ -550,14 +426,10 @@ The project is designed to demonstrate how a trained machine learning model can 
 
 **Lokesh Reddy**
 
-B.Tech Student | Machine Learning & AI Enthusiast
+B.Tech Student | Machine Learning & AI
+
+GitHub: https://github.com/loki25590
 
 ---
 
-## 📌 Project Status
-
-🚀 **Active Development**
-
-Core prediction, disease information, AI attention visualization, FastAPI integration, and web interface are implemented.
-
-Further work focuses on deployment, documentation, evaluation, and production readiness.
+⭐ If you find SmartCrop Vision interesting, feel free to explore the project.
