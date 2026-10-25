@@ -1746,7 +1746,8 @@ async function analyzeImage() {
         console.error(error);
 
         showError(
-            "Could not connect to the SmartCrop AI server. Make sure FastAPI is running on port 8000."
+            "Prediction failed: " + (error.message || "Unknown error") +
+            ". Check the browser console for details."
         );
 
     } finally {
