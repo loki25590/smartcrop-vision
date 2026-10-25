@@ -1370,7 +1370,7 @@ footer {
    CONFIGURATION
 ========================================================= */
 
-const API_URL = "http://localhost:8000";
+const API_URL = "https://lokesh25590-smartcrop-vision.hf.space";
 
 
 /* =========================================================
@@ -1612,38 +1612,130 @@ async function analyzeImage() {
 
     try {
 
-        const response =
-            await fetch(
-                `${API_URL}/predict`,
-                {
-                    method: "POST",
-                    body: formData
-                }
-            );
+        const uploadForm = new FormData();
+        uploadForm.append("files", selectedFile);
 
+        const uploadResponse = await fetch(
+            `${API_URL}/gradio_api/upload`,
+            { method: "POST", body: uploadForm }
+        );
 
-        if (!response.ok) {
-
-            throw new Error(
-                `Server returned ${response.status}`
-            );
-
+        if (!uploadResponse.ok) {
+            throw new Error("Image upload failed: " + uploadResponse.status);
         }
 
+        const uploaded = await uploadResponse.json();
+        const imageData = {
+            path: uploaded[0],
+            url: null,
+            size: selectedFile.size,
+            orig_name: selectedFile.name,
+            mime_type: selectedFile.type || "image/jpeg",
+            is_stream: false,
+            meta: { _type: "gradio.FileData" }
+        };
 
-        const data =
-            await response.json();
+        const callResponse = await fetch(
+            `${API_URL}/gradio_api/call/predict`,
+            {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ data: [imageData] })
+            }
+        );
 
-
-        if (!data.success) {
-
-            throw new Error(
-                data.error ||
-                "AI prediction failed."
-            );
-
+        if (!callResponse.ok) {
+            throw new Error("Prediction request failed: " + callResponse.status);
         }
 
+        const callInfo = await callResponse.json();
+        const resultResponse = await fetch(
+            `${API_URL}/gradio_api/call/predict/${callInfo.event_id}`
+        );
+
+        if (!resultResponse.ok) {
+            throw new Error("Could not retrieve prediction results.");
+        }
+
+        const eventText = await resultResponse.text();
+        const dataLines = eventText
+            .split("\\n")
+            .filter(line => line.startsWith("data:"));
+
+        if (!dataLines.length) {
+            throw new Error("The model returned no prediction data.");
+        }
+
+        const outputs = JSON.parse(
+            dataLines[dataLines.length - 1].slice(5).trim()
+        );
+
+        if (!Array.isArray(outputs) || !outputs[0]) {
+            throw new Error("Unexpected model response.");
+        }
+
+        const labelOutput = outputs[0];
+        let predictions = [];
+
+        if (Array.isArray(labelOutput.confidences)) {
+            predictions = labelOutput.confidences;
+        } else if (labelOutput.label && typeof labelOutput.label === "string") {
+            predictions = [{ label: labelOutput.label, confidence: 1 }];
+        } else if (typeof labelOutput === "object") {
+            predictions = Object.entries(labelOutput).map(([label, confidence]) => ({
+                label,
+                confidence
+            }));
+        }
+
+        predictions = predictions
+            .map(item => ({
+                label: item.label,
+                confidence: Number(item.confidence || 0)
+            }))
+            .sort((a, b) => b.confidence - a.confidence);
+
+        if (!predictions.length) {
+            throw new Error("No class predictions were returned.");
+        }
+
+        function convertPrediction(item) {
+            const parts = String(item.label).split(" — ");
+            const plant = parts.shift() || "Unknown";
+            const disease = parts.join(" — ") || "Unknown";
+            return {
+                plant,
+                disease_name: disease,
+                confidence: item.confidence * 100,
+                health_status: /healthy/i.test(disease)
+                    ? "Healthy"
+                    : "Potential Disease",
+                info: {
+                    cause: "The model identifies a visual class; confirm the cause with an agricultural expert.",
+                    treatment: "Treatment advice is not supplied by this model. Confirm the diagnosis with a local agricultural expert before applying treatments.",
+                    prevention: "Use clean planting material, monitor the crop regularly, and follow local agricultural guidance."
+                },
+                ai_explanation: outputs[2] || "AI-generated prediction. Confirm uncertain results with an agricultural expert."
+            };
+        }
+
+        const converted = predictions.slice(0, 3).map(convertPrediction);
+        const heatmapOutput = outputs[1];
+        let heatmapURL = "";
+
+        if (heatmapOutput && heatmapOutput.url) {
+            heatmapURL = heatmapOutput.url.startsWith("http")
+                ? heatmapOutput.url
+                : API_URL + heatmapOutput.url;
+        } else if (heatmapOutput && heatmapOutput.path) {
+            heatmapURL = `${API_URL}/gradio_api/file=${heatmapOutput.path}`;
+        }
+
+        const data = {
+            top_prediction: converted[0],
+            predictions: converted,
+            heatmap: heatmapURL
+        };
 
         displayResults(data);
 
@@ -1777,17 +1869,29 @@ function displayResults(data) {
         "";
 
 
-    if (data.ai_vision_url) {
-
+    if (data.heatmap) {
+        const heatmapURL =
+        data.heatmap.startsWith("http")
+            ? data.heatmap
+            : "http://127.0.0.1:8000" + data.heatmap;
         document.getElementById(
-            "aiVision"
+        "aiVision"
         ).src =
-            API_URL +
-            data.ai_vision_url;
+        heatmapURL + "?t=" + Date.now();
 
-    }
+        console.log(
+        "Heatmap:",
+        heatmapURL
+        );
+   } else {
 
+    console.warn(
+        "No heatmap returned by API."
+    );
 
+ }
+
+     
     renderPredictions(
         data.predictions || []
     );
