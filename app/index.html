@@ -1659,7 +1659,7 @@ async function analyzeImage() {
 
         const eventText = await resultResponse.text();
         const dataLines = eventText
-            .split("\\n")
+            .split("\n")
             .filter(line => line.startsWith("data:"));
 
         if (!dataLines.length) {
